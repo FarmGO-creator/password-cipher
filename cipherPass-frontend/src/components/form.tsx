@@ -4,11 +4,13 @@ import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {CipherTypeForm} from "../types";
 import {useAppDispatch, useAppSelector} from "../app/hooks";
-import {encodedPost} from "../store/cipherThunk";
+import {decodedPost, encodedPost} from "../store/cipherThunk";
 import {selectEncoded} from "../store/encodeSlice";
+import {selectDecoded} from "../store/decodeSlice";
 
 const Form = () => {
   const dispatch = useAppDispatch();
+  const decode = useAppSelector(selectDecoded);
   const encode = useAppSelector(selectEncoded);
 
   const [value, setValue] = useState<CipherTypeForm>({
@@ -23,8 +25,8 @@ const Form = () => {
   };
 
   useEffect(() => {
-    setValue(prev => ({...prev, messageD: encode.encoded}));
-  }, [encode])
+    setValue(prev => ({...prev, messageD: encode.encoded, messageE: decode.decoded}));
+  }, [encode, decode])
 
   const onEncode = async () => {
     if (value.password === '') {
@@ -38,6 +40,19 @@ const Form = () => {
     setValue(prev => ({...prev, messageE: ''}));
   };
 
+
+  const onDecode = async () => {
+    if (value.password === '') {
+      return window.alert('Введите пароль !');
+    }
+
+    await dispatch(decodedPost({
+      message: encode.encoded,
+      password: value.password
+    }));
+
+    setValue(prev => ({...prev, messageD: ''}))
+  };
 
   return (
     <Box component='div' sx={{display: 'flex', justifyContent: 'center'}}>
@@ -67,7 +82,7 @@ const Form = () => {
           />
 
           <ButtonGroup variant="text">
-            <IconButton aria-label="encode">
+            <IconButton aria-label="encode" onClick={onDecode}>
               <ArrowCircleUpIcon sx={{fontSize: 50}} />
             </IconButton>
 
