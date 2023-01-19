@@ -11,3 +11,12 @@ export const encodedPost = createAsyncThunk<Encode, CipherTypePost>(
     return response.data
   }
 );
+
+export const decodedPost = createAsyncThunk<Decode, CipherTypePost>(
+  'encoded/post',
+  async (cipher) => {
+    const response = await axiosApi.post('/decode', cipher);
+
+    return response.data
+  }
+);
